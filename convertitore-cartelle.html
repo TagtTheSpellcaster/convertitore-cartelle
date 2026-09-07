@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Convertitore Cartelle / Parole</title>
+<style>
+  :root {
+    --bg: #1a1a1a;
+    --panel: #242424;
+    --border: #3a3a3a;
+    --text: #e0e0e0;
+    --text-dim: #999;
+    --accent: #5a9fd4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", Roboto, -apple-system, sans-serif;
+    max-width: 640px;
+    margin: 40px auto;
+    padding: 0 20px;
+    font-size: 14px;
+  }
+  h1 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 12px;
+    margin-bottom: 24px;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .panel h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+    margin: 0 0 12px 0;
+    font-weight: 600;
+  }
+  .row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .field {
+    flex: 1;
+  }
+  label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  input[type="number"], input[type="text"] {
+    width: 100%;
+    background: #151515;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px;
+    border-radius: 3px;
+    font-size: 14px;
+    font-family: inherit;
+  }
+  input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .reset-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 6px 10px;
+    border-radius: 3px;
+    font-size: 11px;
+    cursor: pointer;
+  }
+  .reset-btn:hover {
+    color: var(--text);
+    border-color: var(--accent);
+  }
+  .conv-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+  }
+  .arrow {
+    padding-bottom: 8px;
+    color: var(--text-dim);
+    font-size: 16px;
+  }
+  .result {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+  .result strong {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  textarea {
+    width: 100%;
+    min-height: 120px;
+    background: #151515;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px;
+    border-radius: 3px;
+    font-size: 13px;
+    font-family: inherit;
+    resize: vertical;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .stat {
+    background: #151515;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 8px;
+    text-align: center;
+  }
+  .stat-label {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  .stat-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-top: 2px;
+  }
+  .note {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Convertitore cartella / parola</h1>
+<div class="subtitle">Conversione basata su: 1 cartella = N caratteri (spazi inclusi), 1 parola media = M lettere + 1 spazio</div>
+
+<div class="panel">
+  <h2>Parametri</h2>
+  <div class="row">
+    <div class="field">
+      <label for="cartellaSize">Caratteri per cartella (spazi inclusi)</label>
+      <input type="number" id="cartellaSize" value="1800" min="1">
+    </div>
+    <div class="field">
+      <label for="wordLen">Lettere per parola</label>
+      <input type="number" id="wordLen" value="6" min="1">
+    </div>
+    <div style="display:flex; align-items:flex-end; padding-bottom:1px;">
+      <button class="reset-btn" onclick="resetDefaults()">Ripristina default</button>
+    </div>
+  </div>
+  <div class="note">Parola equivalente = lettere + 1 spazio. Con i default: 1800 / 7 = 257,14 parole per cartella.</div>
+</div>
+
+<div class="panel">
+  <h2>Cartelle → Parole</h2>
+  <div class="conv-row">
+    <div class="field">
+      <label for="cartelleInput">Numero cartelle</label>
+      <input type="number" id="cartelleInput" step="any" oninput="fromCartelle()">
+    </div>
+    <div class="arrow">→</div>
+    <div class="field">
+      <label for="paroleOutput">Parole equivalenti</label>
+      <input type="text" id="paroleOutput" readonly>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Parole → Cartelle</h2>
+  <div class="conv-row">
+    <div class="field">
+      <label for="paroleInput">Numero parole</label>
+      <input type="number" id="paroleInput" step="any" oninput="fromParole()">
+    </div>
+    <div class="arrow">→</div>
+    <div class="field">
+      <label for="cartelleOutput">Cartelle equivalenti</label>
+      <input type="text" id="cartelleOutput" readonly>
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <h2>Analisi testo (opzionale)</h2>
+  <textarea id="textInput" placeholder="Incolla qui un testo per calcolarne caratteri, parole e cartelle effettive..." oninput="analyzeText()"></textarea>
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">Caratteri (con spazi)</div>
+      <div class="stat-value" id="charCount">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Parole (conteggio reale)</div>
+      <div class="stat-value" id="wordCount">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Cartelle (da caratteri)</div>
+      <div class="stat-value" id="cartelleFromText">0</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function getParams() {
+  const cartellaSize = parseFloat(document.getElementById('cartellaSize').value) || 1800;
+  const wordLen = parseFloat(document.getElementById('wordLen').value) || 6;
+  return { cartellaSize, wordLen };
+}
+
+function resetDefaults() {
+  document.getElementById('cartellaSize').value = 1800;
+  document.getElementById('wordLen').value = 6;
+  fromCartelle();
+  fromParole();
+  analyzeText();
+}
+
+function fromCartelle() {
+  const { cartellaSize, wordLen } = getParams();
+  const cartelle = parseFloat(document.getElementById('cartelleInput').value);
+  if (isNaN(cartelle)) {
+    document.getElementById('paroleOutput').value = '';
+    return;
+  }
+  const parole = (cartelle * cartellaSize) / (wordLen + 1);
+  document.getElementById('paroleOutput').value = parole.toFixed(1);
+}
+
+function fromParole() {
+  const { cartellaSize, wordLen } = getParams();
+  const parole = parseFloat(document.getElementById('paroleInput').value);
+  if (isNaN(parole)) {
+    document.getElementById('cartelleOutput').value = '';
+    return;
+  }
+  const cartelle = (parole * (wordLen + 1)) / cartellaSize;
+  document.getElementById('cartelleOutput').value = cartelle.toFixed(3);
+}
+
+function analyzeText() {
+  const { cartellaSize } = getParams();
+  const text = document.getElementById('textInput').value;
+  const charCount = text.length;
+  const wordCount = text.trim().length === 0 ? 0 : text.trim().split(/\s+/).length;
+  const cartelleFromText = charCount / cartellaSize;
+  document.getElementById('charCount').textContent = charCount;
+  document.getElementById('wordCount').textContent = wordCount;
+  document.getElementById('cartelleFromText').textContent = cartelleFromText.toFixed(3);
+}
+
+// Ricalcola le conversioni quando cambiano i parametri
+document.getElementById('cartellaSize').addEventListener('input', () => { fromCartelle(); fromParole(); analyzeText(); });
+document.getElementById('wordLen').addEventListener('input', () => { fromCartelle(); fromParole(); analyzeText(); });
+</script>
+
+</body>
+</html>
